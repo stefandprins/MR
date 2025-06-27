@@ -5,20 +5,9 @@
         <!-- Make Your Selection -->
         <div class="d-flex flex-column flex-fill">
           <h2>Make Your Selection</h2>
-          <label for="track1">Track 1:</label>
-          <input v-model="preferences.track1" id="track1" type="text" class="form-control mb-2" />
-
-          <label for="track2">Track 2:</label>
-          <input v-model="preferences.track2" id="track2" type="text" class="form-control" />
-
-          <label for="track3">Track 3:</label>
-          <input v-model="preferences.track3" id="track3" type="text" class="form-control" />
-
-          <label for="track4">Track 4:</label>
-          <input v-model="preferences.track4" id="track4" type="text" class="form-control" />
-
-          <label for="track5">Track 5:</label>
-          <input v-model="preferences.track5" id="track5" type="text" class="form-control" />
+          <ul>
+            <li v-for="(track, index) in selectedTracks" :key="index">{{ track.title }} ({{ track.artist_name }})</li>
+          </ul>
         </div>
 
         <!-- User Preferences -->
@@ -36,22 +25,18 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: 'PreferencesForm',
-  data() {
-    return {
-      preferences: {
-        genre: '',
-        mood: '',
-      },
-    };
-  },
-  methods: {
-    submitPreferences() {
-      this.$emit('submit', this.preferences);
-    },
-  },
+<script setup>
+import { reactive } from 'vue';
+import { selectedTracks } from '@/stores/trackStore.js';
+
+const preferences = reactive({
+  genre: '',
+  mood: '',
+});
+
+const submitPreferences = () => {
+  console.log('Selected:', selectedTracks.value);
+  console.log('Prefs:', preferences);
 };
 </script>
 

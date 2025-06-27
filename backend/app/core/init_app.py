@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.api.endpoints import recommender, song  # import other routers here
+# from app.api.endpoints import recommender, song  # import other routers here
+from app.api.endpoints import search
 
 def create_app() -> FastAPI:
     app = FastAPI()
@@ -15,7 +16,8 @@ def create_app() -> FastAPI:
     )
 
     # Register API routes
-    app.include_router(recommender.router, prefix="/api", tags=["Recommender"])
-    app.include_router(song.router, prefix="/api", tags=["Songs"])  # if you have song API
+    app.include_router(search.router)
+    # app.include_router(recommender.router, prefix="/api", tags=["Recommender"])
+    # app.include_router(song.router, prefix="/api", tags=["Songs"])  # if you have song API
 
     return app
