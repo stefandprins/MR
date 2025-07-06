@@ -1,92 +1,104 @@
-import { ref, watch, onUnmounted } from 'vue';
+import { reactive, ref, watch, onUnmounted } from 'vue';
 import debounce from 'lodash/debounce';
 import { selectedTracks } from '@/stores/trackStore.js'; // shared store
 
 export function useTrackSearch() {
-  const query = ref('');
-  const results = ref([]);
-  const loading = ref(false);
   const cache = new Map(); // Cache storage
-  const selectedFromResults = ref(false);
-  const currentSelectedTrack = ref(null); // temporary holder
+
+  const state = reactive({
+    query: '',
+    results: [],
+    loading: false,
+    selectedFromResults: false,
+    selectedTrack: null,
+    error: null,
+  });
 
   const fetchTracks = async () => {
-    if (!query.value.trim()) {
-      results.value = [];
-      loading.value = false;
+    if (!state.query.trim()) {
+      state.results = [];
+      state.loading = false;
+      state.error = null;
+      return;
+    }
+    state.loading = true;
+
+    if (cache.has(state.query)) {
+      state.results = cache.get(state.query);
+      state.loading = false; // Ensure loading is false when using cache
       return;
     }
 
-    if (cache.has(query.value)) {
-      results.value = cache.get(query.value);
-      return;
-    }
-
-    loading.value = true;
+    // loading.value = true;
     try {
-      const response = await fetch(`http://localhost:8000/search?query=${encodeURIComponent(query.value)}`);
+      const response = await fetch(`http://localhost:8000/search?query=${encodeURIComponent(state.query)}`);
       if (!response.ok) throw new Error('Failed to fetch tracks');
       const data = await response.json();
-      const mappedData = data.map((track) => ({
+      // const mappedData = data.map((track) => ({
+      state.results = data.map((track) => ({
         ...track,
         label: `${track.title} (${track.artist_name})`,
       }));
 
-      results.value = mappedData;
-      cache.set(query.value, mappedData);
+      cache.set(state.query, state.results);
+      state.error = null;
     } catch (error) {
       console.error('Search failed:', error);
-      results.value = [];
+      state.error = error.message;
+      state.results = [];
     } finally {
-      loading.value = false;
+      state.loading = false;
     }
   };
 
-  const debouncedFetch = debounce(fetchTracks, 400, { leading: false, trailing: true });
+  const debouncedFetch = debounce(fetchTracks, 400, { leading: true, trailing: true });
 
-  watch(query, () => {
-    if (selectedFromResults.value) {
-      selectedFromResults.value = false;
-      return;
+  watch(
+    () => state.query,
+    () => {
+      if (state.selectedFromResults) {
+        state.selectedFromResults = false;
+        return;
+      }
+
+      if (state.query.trim() === '') {
+        state.results = [];
+        state.error = null;
+        return;
+      }
+
+      debouncedFetch.cancel();
+      debouncedFetch();
     }
-
-    if (query.value.trim() === '') {
-      results.value = [];
-      return;
-    }
-
-    debouncedFetch.cancel();
-    debouncedFetch();
-  });
+  );
 
   onUnmounted(() => {
     debouncedFetch.cancel();
   });
 
   const selectTrack = (track) => {
-    query.value = `${track.title} (${track.artist_name})`;
-    currentSelectedTrack.value = track;
-    selectedFromResults.value = true;
-    results.value = []; // 👈 This line closes the list
-    cache.delete(query.value); // Optional
+    state.query = `${track.title} (${track.artist_name})`;
+    state.selectedTrack = track;
+    state.selectedFromResults = true;
+    state.results = [];
+    state.error = null;
+    cache.delete(query.value);
   };
 
   const addTrack = () => {
-    if (currentSelectedTrack.value && !selectedTracks.value.some((t) => t.id === currentSelectedTrack.value.id)) {
-      selectedTracks.value.push(currentSelectedTrack.value);
+    if (state.selectedTrack && !selectedTracks.value.some((t) => t.id === state.selectedTrack.id)) {
+      selectedTracks.value.push(state.selectedTrack);
     }
-    query.value = '';
-    results.value = [];
-    currentSelectedTrack.value = null;
+    state.query = '';
+    state.results = [];
+    state.selectedTrack = null;
+    state.error = null;
   };
 
   return {
-    query,
-    results,
-    loading,
+    state,
     selectTrack,
     addTrack,
-    selectedTrack: currentSelectedTrack,
     selectedTracks, // exposed from shared store
   };
 }

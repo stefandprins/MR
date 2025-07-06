@@ -1,0 +1,7 @@
+Vue.js
+
+deactivate
+
+To run the server from /mnt/c/Users/dev/Desktop/MR/frontend
+
+npm run dev
