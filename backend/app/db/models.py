@@ -1,5 +1,6 @@
 from sqlalchemy import Column, String, Integer, Float, ForeignKey
 from sqlalchemy.orm import relationship, declarative_base
+from sqlalchemy.dialects.postgresql import JSONB
 
 Base = declarative_base()
 
@@ -41,45 +42,15 @@ class Track(Base):
 
     artist = relationship("Artist", back_populates="tracks")
     genre = relationship("Genre", back_populates="tracks")
-    segments = relationship("Segment", back_populates="track", cascade="all, delete-orphan")
+    segment = relationship("Segment", back_populates="track", uselist=False, cascade="all, delete-orphan")
 
 
 class Segment(Base):
     __tablename__ = "segment"
 
     id = Column(Integer, primary_key=True, index=True)
-    track_id = Column(Integer, ForeignKey("track.id"), nullable=False)
-    segment_index = Column(Integer, nullable=False)
+    track_id = Column(Integer, ForeignKey("track.id", ondelete="CASCADE"), unique=True)
+    
+    segments = Column(JSONB, nullable=False)  # Single column holding all segment data as JSON
 
-    # Timbre features
-    timbre_0 = Column(Float)
-    timbre_1 = Column(Float)
-    timbre_2 = Column(Float)
-    timbre_3 = Column(Float)
-    timbre_4 = Column(Float)
-    timbre_5 = Column(Float)
-    timbre_6 = Column(Float)
-    timbre_7 = Column(Float)
-    timbre_8 = Column(Float)
-    timbre_9 = Column(Float)
-    timbre_10 = Column(Float)
-    timbre_11 = Column(Float)
-
-    # Pitch features
-    pitch_0 = Column(Float)
-    pitch_1 = Column(Float)
-    pitch_2 = Column(Float)
-    pitch_3 = Column(Float)
-    pitch_4 = Column(Float)
-    pitch_5 = Column(Float)
-    pitch_6 = Column(Float)
-    pitch_7 = Column(Float)
-    pitch_8 = Column(Float)
-    pitch_9 = Column(Float)
-    pitch_10 = Column(Float)
-    pitch_11 = Column(Float)
-
-    loudness_max = Column(Float)
-    confidence = Column(Float)
-
-    track = relationship("Track", back_populates="segments")
+    track = relationship("Track", back_populates="segment")
