@@ -1,6 +1,7 @@
 from sqlalchemy import Column, String, Integer, Float, ForeignKey
 from sqlalchemy.orm import relationship, declarative_base
 from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.dialects.postgresql import TSVECTOR
 
 Base = declarative_base()
 
@@ -39,6 +40,8 @@ class Track(Base):
     key = Column(Integer, nullable=True)
     mode = Column(Integer, nullable=True)
     time_signature = Column(Integer, nullable=True)
+
+    search_vector = Column(TSVECTOR)
 
     artist = relationship("Artist", back_populates="tracks")
     genre = relationship("Genre", back_populates="tracks")

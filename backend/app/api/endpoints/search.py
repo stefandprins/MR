@@ -1,51 +1,72 @@
 from fastapi import APIRouter, Query
 from sqlalchemy import text
-from app.db.database import engine  # Assuming engine is defined here
+from app.db.database import engine 
 
 router = APIRouter()
 
 @router.get("/search")
-# def search_tracks(q: str = Query(..., min_length=1)):
-#     with engine.connect() as conn:
-#         stmt = text("""
-#                         SELECT id, title, artist_name
-#                         FROM api_song
-#                         WHERE LOWER(title) LIKE LOWER(:q)
-#                         OR LOWER(artist_name) LIKE LOWER(:q)
-#                         LIMIT 15
-#                     """)
-#         results = conn.execute(stmt, {"q": f"%{q}%"}).fetchall()
-#         return [{"id": row[0], "title": row[1], "artist_name": row[2]} for row in results]
-    
-# def search_tracks(query):
-#     words = query.lower().split()
-#     conditions = " AND ".join(
-#         [f"(LOWER(title) LIKE :w{i} OR LOWER(artist_name) LIKE :w{i})" for i in range(len(words))]
-#     )
-#     stmt = text(f"""
-#         SELECT id, title, artist_name
-#         FROM api_song
-#         WHERE {conditions}
+# def search_tracks(query: str = Query(..., min_length=1)):
+
+
+#     stmt = text("""
+#         SELECT track.id, track.title, artist.artist_name AS artist_name
+#         FROM track
+#         JOIN artist ON track.artist_id = artist.id
+#         WHERE track.search_vector @@ to_tsquery('english', :q)
 #         LIMIT 15
 #     """)
-#     params = {f"w{i}": f"%{word}%" for i, word in enumerate(words)}
     
 #     with engine.connect() as conn:
-#         results = conn.execute(stmt, params).fetchall()
+#         results = conn.execute(stmt, {"q": query}).fetchall()
 #         return [{"id": row[0], "title": row[1], "artist_name": row[2]} for row in results]
 
-def search_tracks(query):
-    # Prepare the FTS5 query string (space-separated tokens)
-    fts_query = query.replace('"', '""')  # escape quotes
+# def search_tracks(query: str = Query(..., min_length=1)):
+#     # Clean and prepare the query for prefix search
+#     clean_query = query.strip()
+#     if clean_query:
+#         # Add :* for prefix matching to the last word
+#         search_query = f"{clean_query}:*"
+#     else:
+#         search_query = clean_query
+    
+#     stmt = text("""
+#         SELECT track.id, track.title, artist.artist_name AS artist_name
+#         FROM track
+#         JOIN artist ON track.artist_id = artist.id
+#         WHERE track.search_vector @@ to_tsquery('english', :q)
+#         LIMIT 15
+#     """)
+    
+#     try:
+#         with engine.connect() as conn:
+#             results = conn.execute(stmt, {"q": search_query}).fetchall()
+#             return [{"id": row[0], "title": row[1], "artist_name": row[2]} for row in results]
+#     except Exception:
+#         # Fallback to ILIKE if tsquery fails
+#         return fallback_search(query)
+
+@router.get("/search")
+def search_tracks(query: str = Query(..., min_length=1)):
+    # 1) Split into words and strip out empties
+    words = [w for w in query.strip().split() if w]
+
+    # 2) Escape quotes and add :* for each term
+    prefixes = []
+    for w in words:
+        escaped = w.replace("'", "''")   # double up single quotes
+        prefixes.append(f"{escaped}:*")  # now safe—no backslashes in here
+
+    # 3) Join with AND operator for tsquery
+    ts_query = " & ".join(prefixes)
 
     stmt = text("""
-        SELECT s.id, s.title, s.artist_name
-        FROM api_song s
-        JOIN api_song_fts ON s.rowid = api_song_fts.rowid
-        WHERE api_song_fts MATCH :q
+        SELECT track.id, track.title, artist.artist_name AS artist_name
+        FROM track
+        JOIN artist ON track.artist_id = artist.id
+        WHERE track.search_vector @@ to_tsquery('english', :q)
         LIMIT 15
     """)
-    
+
     with engine.connect() as conn:
-        results = conn.execute(stmt, {"q": fts_query}).fetchall()
+        results = conn.execute(stmt, {"q": ts_query}).fetchall()
         return [{"id": row[0], "title": row[1], "artist_name": row[2]} for row in results]

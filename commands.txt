@@ -5,3 +5,31 @@ deactivate
 To run the server from /mnt/c/Users/dev/Desktop/MR/frontend
 
 npm run dev
+
+uvicorn app.main:app --reload
+
+# Build the tables
+    /mnt/c/Users/dev/Desktop/MR/backend
+    alembic revision --autogenerate -m "Update schema"
+    alembic upgrade head
+
+# Run Python modules
+    PYTHONPATH=. python app/scripts/add_genres.py
+    PYTHONPATH=. python app/scripts/add_artists.py
+    PYTHONPATH=. python app/scripts/add_tracks.py
+
+
+# Create TSVECTOR for the track
+    search_vector = Column(TSVECTOR)
+
+    UPDATE track
+    SET search_vector = to_tsvector(
+    'english',
+    track.title || ' ' || artist.artist_name
+    )
+    FROM artist
+    WHERE track.artist_id = artist.id;
+
+    CREATE INDEX track_search_idx
+    ON track
+    USING GIN (search_vector);
