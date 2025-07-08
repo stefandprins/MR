@@ -48,9 +48,7 @@ class Track(Base):
 class Segment(Base):
     __tablename__ = "segment"
 
-    id = Column(Integer, primary_key=True, index=True)
-    track_id = Column(Integer, ForeignKey("track.id", ondelete="CASCADE"), unique=True)
-    
-    segments = Column(JSONB, nullable=False)  # Single column holding all segment data as JSON
-
+    id = Column(Integer, primary_key=True)
+    track_id = Column(ForeignKey("track.id"), nullable=False)
+    segments = Column(JSONB, nullable=False)
     track = relationship("Track", back_populates="segment")
