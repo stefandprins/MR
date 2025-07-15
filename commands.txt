@@ -1,3 +1,5 @@
+source venv/bin/activate
+
 Vue.js
 
 deactivate
@@ -33,3 +35,16 @@ uvicorn app.main:app --reload
     CREATE INDEX track_search_idx
     ON track
     USING GIN (search_vector);
+
+# Create a new database
+    # launch postgres
+    sudo -i -u postgres
+
+    # enter the psql command
+    psql
+
+    # create the database
+    CREATE DATABASE musicdb1;
+
+    # list the databases
+    \l

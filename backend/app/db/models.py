@@ -9,7 +9,7 @@ class Artist(Base):
     __tablename__ = "artist"
 
     id = Column(Integer, primary_key=True, index=True)
-    artist_name = Column(String(255), unique=True, nullable=False)
+    artist_name = Column(String(400), unique=True, nullable=False)
 
     tracks = relationship("Track", back_populates="artist")
 

@@ -31,7 +31,7 @@ export function useTrackSearch() {
 
     // loading.value = true;
     try {
-      const response = await fetch(`http://localhost:8000/search?query=${encodeURIComponent(state.query)}`);
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/search?query=${encodeURIComponent(state.query)}`);
       if (!response.ok) throw new Error('Failed to fetch tracks');
       const data = await response.json();
       // const mappedData = data.map((track) => ({

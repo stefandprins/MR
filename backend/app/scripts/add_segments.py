@@ -6,7 +6,8 @@ from app.utils.hdf5_files import get_all_files
 from app.utils.hdf5_getters import *
 from tables import open_file
 
-data_folder = '/mnt/c/Users/dev/Desktop/MRS/MillionSongSubset'
+# data_folder = '/mnt/c/Users/dev/Desktop/MRS/MillionSongSubset'
+data_folder = '/mnt/c/Users/dev/Desktop/MRS/MillionSong'
 BATCH_SIZE = 10
 
 def add_segments():

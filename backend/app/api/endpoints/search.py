@@ -5,47 +5,6 @@ from app.db.database import engine
 router = APIRouter()
 
 @router.get("/search")
-# def search_tracks(query: str = Query(..., min_length=1)):
-
-
-#     stmt = text("""
-#         SELECT track.id, track.title, artist.artist_name AS artist_name
-#         FROM track
-#         JOIN artist ON track.artist_id = artist.id
-#         WHERE track.search_vector @@ to_tsquery('english', :q)
-#         LIMIT 15
-#     """)
-    
-#     with engine.connect() as conn:
-#         results = conn.execute(stmt, {"q": query}).fetchall()
-#         return [{"id": row[0], "title": row[1], "artist_name": row[2]} for row in results]
-
-# def search_tracks(query: str = Query(..., min_length=1)):
-#     # Clean and prepare the query for prefix search
-#     clean_query = query.strip()
-#     if clean_query:
-#         # Add :* for prefix matching to the last word
-#         search_query = f"{clean_query}:*"
-#     else:
-#         search_query = clean_query
-    
-#     stmt = text("""
-#         SELECT track.id, track.title, artist.artist_name AS artist_name
-#         FROM track
-#         JOIN artist ON track.artist_id = artist.id
-#         WHERE track.search_vector @@ to_tsquery('english', :q)
-#         LIMIT 15
-#     """)
-    
-#     try:
-#         with engine.connect() as conn:
-#             results = conn.execute(stmt, {"q": search_query}).fetchall()
-#             return [{"id": row[0], "title": row[1], "artist_name": row[2]} for row in results]
-#     except Exception:
-#         # Fallback to ILIKE if tsquery fails
-#         return fallback_search(query)
-
-@router.get("/search")
 def search_tracks(query: str = Query(..., min_length=1)):
     # 1) Split into words and strip out empties
     words = [w for w in query.strip().split() if w]

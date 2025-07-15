@@ -9,7 +9,8 @@ from tables import open_file
 
 # Add the tracks to the Track table
 
-data_folder = '/mnt/c/Users/dev/Desktop/MRS/MillionSongSubset'
+# data_folder = '/mnt/c/Users/dev/Desktop/MRS/MillionSongSubset'
+data_folder = '/mnt/c/Users/dev/Desktop/MRS/MillionSong'
 csv_path = '/mnt/c/Users/dev/Desktop/MRS/Backend/genre_mapping.csv'
 
 def load_genre_csv(csv_path):

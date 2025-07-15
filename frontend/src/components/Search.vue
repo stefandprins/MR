@@ -10,7 +10,7 @@
         </ul>
       </div>
 
-      <button class="btn btn-primary align-self-center" :disabled="!state.selectedTrack" @click="addTrack">Add Track</button>
+      <button class="btn btn-dark align-self-center" :disabled="!state.selectedTrack" @click="addTrack">Add Track</button>
     </div>
   </div>
 </template>
