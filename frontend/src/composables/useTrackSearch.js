@@ -82,7 +82,7 @@ export function useTrackSearch() {
     state.selectedFromResults = true;
     state.results = [];
     state.error = null;
-    cache.delete(query.value);
+    cache.delete(state.query);
   };
 
   const addTrack = () => {

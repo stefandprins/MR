@@ -1,8 +1,10 @@
 import os
 from dotenv import load_dotenv
+from pathlib import Path
+load_dotenv(dotenv_path=Path(__file__).resolve().parent.parent.parent / ".env")
 
 # Load environment variables from .env file
-load_dotenv()
+# load_dotenv()
 
 class Settings:
     PROJECT_NAME: str = "MR Recommender"
@@ -12,9 +14,11 @@ class Settings:
     API_PREFIX: str = "/api"
 
     # CORS
-    ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", "http://localhost:5173").split(",")
+    ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", "").split(",")
 
     # Database
-    DATABASE_URL: str = os.getenv("DATABASE_URL", "sqlite:///./db.sqlite3")
+    DATABASE_URL: str = os.getenv("DATABASE_URL")
+
+    print("ALLOWED_ORIGINS loaded:", os.getenv("ALLOWED_ORIGINS"))
 
 settings = Settings()

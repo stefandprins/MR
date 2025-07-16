@@ -2,23 +2,22 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 # from app.api.endpoints import recommender, song  # import other routers here
 from app.api.endpoints import search, recommender
+from app.core.config import settings
 
 def create_app() -> FastAPI:
     app = FastAPI()
 
-    origins = [
-    "http://localhost:5173",  # for local development
-    "https://example.netlify.app",  # placeholder for Netlify
-    ]
-
     # Enable CORS for the frontend
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=["*"],  # Vue frontend
+        allow_origins=
+        settings.ALLOWED_ORIGINS,  # Vue frontend
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
     )
+
+    print("ALLOWED_ORIGINS split:", settings.ALLOWED_ORIGINS)
 
     # Register API routes
     app.include_router(search.router, tags=["Search"])
