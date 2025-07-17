@@ -1,11 +1,11 @@
 <template>
-  <div class="container py-4 d-flex justify-content-between gap-3">
-    <div class="d-flex flex-column flex-grow-1 gap-3">
-      <Search />
-      <PreferencesForm />
-      <Playlist />
+  <div class="container py-4 d-flex justify-content-between gap-3" style="height: calc(100vh - 56px)">
+    <div class="d-flex flex-column flex-grow-1 gap-3" style="min-width: 0; height: 100%">
+      <Search class="flex-shrink-1" />
+      <PreferencesForm class="flex-grow-1" style="min-height: 0" />
+      <Playlist class="flex-grow-1" style="min-height: 0" />
     </div>
-    <div>
+    <div class="flex-shrink-1">
       <RecommendationData />
     </div>
   </div>
