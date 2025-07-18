@@ -1,12 +1,18 @@
 <template>
-  <div class="card shadow-sm text-bg-light p-4">
-    <h2>Recommendation Details</h2>
-    <div v-if="data">
+  <div class="card custom-card shadow-sm text-bg-light">
+    <!-- Card Title -->
+    <div class="card-header text-start">
+      <h5 class="mb-0">
+        <i class="fas fa-lightbulb me-2"></i>
+        Analytics
+      </h5>
+    </div>
+    <div class="card-body" v-if="data">
       <p><strong>Algorithm:</strong> {{ data.algorithm }}</p>
       <p><strong>Score:</strong> {{ data.score }}</p>
       <p><strong>Reason:</strong> {{ data.reason }}</p>
     </div>
-    <div v-else>
+    <div class="card-body" v-else>
       <p>No recommendation data available.</p>
     </div>
   </div>

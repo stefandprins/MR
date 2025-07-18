@@ -17,5 +17,8 @@ export default defineConfig({
       usePolling: true,
     },
     hmr: true,
+    fs: {
+      allow: ['.', '/mnt/c/Users/dev/Desktop/MR/node_modules'],
+    },
   },
 });

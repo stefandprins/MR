@@ -95,10 +95,18 @@ export function useTrackSearch() {
     state.error = null;
   };
 
+  const removeTrack = (trackId) => {
+    const index = selectedTracks.value.findIndex((t) => t.id === trackId);
+    if (index !== -1) {
+      selectedTracks.value.splice(index, 1);
+    }
+  };
+
   return {
     state,
     selectTrack,
     addTrack,
+    removeTrack,
     selectedTracks, // exposed from shared store
   };
 }

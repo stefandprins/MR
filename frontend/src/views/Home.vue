@@ -1,29 +1,37 @@
 <template>
-  <div class="container py-4 d-flex justify-content-between gap-3" style="height: calc(100vh - 56px)">
-    <div class="d-flex flex-column flex-grow-1 gap-3" style="min-width: 0; height: 100%">
+  <div class="layout-container d-flex gap-3">
+    <!-- Left Column -->
+    <div class="left-column d-flex flex-column gap-3">
       <Search class="flex-shrink-1" />
-      <PreferencesForm class="flex-grow-1" style="min-height: 0" />
-      <Playlist class="flex-grow-1" style="min-height: 0" />
+      <Player class="flex-grow-1 h-100" />
+      <Playlist class="flex-grow-1 h-100" />
     </div>
-    <div class="flex-shrink-1">
-      <RecommendationData />
+    <div class="right-column d-flex flex-column gap-3">
+      <form @submit.prevent="submitPreferences" class="flex-grow-1 h-100 d-flex flex-column gap-3" style="min-height: 0">
+        <SelectionList class="flex-grow-1 h-100" style="min-height: 0" />
+        <PreferencesForm class="flex-grow-1 h-100" style="min-height: 0" />
+
+        <Analytics class="flex-grow-1 h-100" />
+      </form>
     </div>
   </div>
 </template>
 
 <script>
 import Search from '@/components/Search.vue';
+import SelectionList from '@/components/SelectionList.vue';
 import PreferencesForm from '@/components/PreferencesForm.vue';
+import Player from '@/components/Player.vue';
 import Playlist from '@/components/Playlist.vue';
-import RecommendationData from '@/components/RecommendationData.vue';
+import Analytics from '@/components/Analytics.vue';
 
 export default {
-  components: { Search, PreferencesForm, Playlist, RecommendationData },
+  components: { Search, SelectionList, PreferencesForm, Player, Playlist, Analytics },
 };
 </script>
 
 <style>
-.container {
+.container1 {
   max-width: 1200px;
   margin: auto;
 }
