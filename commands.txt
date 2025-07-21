@@ -48,3 +48,6 @@ uvicorn app.main:app --reload
 
     # list the databases
     \l
+
+# Save packages used
+    pip freeze requirements.txt

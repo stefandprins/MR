@@ -33,6 +33,9 @@ async def retrieve_recommendations(req: RecommendInput):
     # 1) 
     selected_embeddings, input_indices = get_track_embeddings(req.track_ids, track_embeddings, valid_track_ids)
 
+    if selected_embeddings.size == 0 or len(input_indices) == 0:
+        return []
+
     recommendations = get_aggregated_recommendations(selected_embeddings, input_indices, track_embeddings, valid_track_ids, top_n=5)
 
     rows = get_track_data(recommendations, engine)
