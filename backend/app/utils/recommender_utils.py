@@ -3,6 +3,7 @@ import numpy as np
 from sqlalchemy import create_engine, text
 from sklearn.metrics.pairwise import cosine_similarity
 from app.db.database import engine
+from collections import Counter
 
 
 def get_track_embeddings(track_ids, track_embeddings, valid_track_ids):
@@ -135,3 +136,94 @@ def preference_filter(track, pref):
         return False
     
     return True
+
+def get_matched_preferences(track, pref):
+    """    Get the list of matched preferences for a track.
+    Parameters:
+    - track: Dictionary containing track attributes.
+    - pref: Dictionary containing user preferences.
+    Returns:
+    - List of matched preference keys.
+    """
+    matched = []
+    if pref.genre and track["genre"] in pref.genre:
+        matched.append("genre")
+    if pref.min_year and track["year"] and track["year"] >= pref.min_year:
+        matched.append("min_year")
+    if pref.max_year and track["year"] and track["year"] <= pref.max_year:
+        matched.append("max_year")
+    if pref.min_tempo and track["tempo"] and track["tempo"] >= pref.min_tempo:
+        matched.append("min_tempo")
+    if pref.max_tempo and track["tempo"] and track["tempo"] <= pref.max_tempo:
+        matched.append("max_tempo")
+    if pref.min_duration and track["duration"] and track["duration"] >= pref.min_duration:
+        matched.append("min_duration")
+    if pref.max_duration and track["duration"] and track["duration"] <= pref.max_duration:
+        matched.append("max_duration")
+    if pref.key and track["key"] in pref.key:
+        matched.append("key")
+    if pref.mode is not None and track["mode"] == pref.mode:
+        matched.append("mode")
+    if pref.time_signature and track["time_signature"] in pref.time_signature:
+        matched.append("time_signature")
+    return matched
+
+def calc_preference_coverage(recommended_tracks, user_prefs):
+    # Count matches per preference
+    coverage = {
+        "genre": 0,
+        "key": 0,
+        "mode": 0,
+        "time_signature": 0,
+        "tempo": 0,
+        "duration": 0,
+        # ...add any others you use
+    }
+    for track in recommended_tracks:
+        if user_prefs.genre and track["genre"] in user_prefs.genre:
+            coverage["genre"] += 1
+        if user_prefs.key and track["key"] in user_prefs.key:
+            coverage["key"] += 1
+        if user_prefs.mode is not None and track["mode"] == user_prefs.mode:
+            coverage["mode"] += 1
+        if user_prefs.time_signature and track["time_signature"] in user_prefs.time_signature:
+            coverage["time_signature"] += 1
+        if user_prefs.min_tempo and track["tempo"] >= user_prefs.min_tempo:
+            coverage["tempo"] += 1
+        if user_prefs.max_tempo and track["tempo"] <= user_prefs.max_tempo:
+            coverage["tempo"] += 1
+        if user_prefs.min_duration and track["duration"] >= user_prefs.min_duration:
+            coverage["duration"] += 1
+        if user_prefs.max_duration and track["duration"] <= user_prefs.max_duration:
+            coverage["duration"] += 1
+    return coverage
+
+def calc_average_similarity(recommended_tracks):
+    sims = [track.get("similarity") for track in recommended_tracks if "similarity" in track]
+    return float(np.mean(sims)) if sims else None
+
+def calc_distribution(tracks, field):
+    return dict(Counter(track[field] for track in tracks if track[field] is not None))
+
+def bin_tempo(tempo):
+    if tempo < 80:
+        return "60–80"
+    elif tempo < 100:
+        return "80–100"
+    elif tempo < 120:
+        return "100–120"
+    elif tempo < 140:
+        return "120–140"
+    elif tempo < 160:
+        return "140–160"
+    else:
+        return "160+"
+
+def tempo_distribution(tracks):
+    bins = [bin_tempo(track["tempo"]) for track in tracks if track.get("tempo") is not None]
+    from collections import Counter
+    return dict(Counter(bins))
+
+def keys_to_str(d):
+    """Convert all keys in a dict to strings."""
+    return {str(k): v for k, v in d.items()}

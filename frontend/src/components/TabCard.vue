@@ -4,7 +4,7 @@
     <!-- Card Title -->
     <!--<div class="text-start">-->
     <div class="text-start">
-      <ul class="d-flex list-unstyled" role="tablist">
+      <ul class="d-flex list-unstyled mb-0" role="tablist">
         <li class="flex-grow-1" role="presentation">
           <button :class="[activeTab === 'preferences' ? 'card-header' : 'card-header1', 'w-100']" @click="activeTab = 'preferences'">
             <i class="fas fa-cog me-2"></i>
@@ -27,8 +27,9 @@
         <!-- Preferences content goes here -->
         <PreferencesForm class="flex-grow-1 h-100" style="min-height: 0" />
       </div>
-      <div v-if="activeTab === 'analytics'">
+      <div v-if="activeTab === 'analytics'" class="flex-grow-1 overflow-auto" style="min-height: 0">
         <!-- Analytics content goes here -->
+        <Analytics />
       </div>
     </div>
   </div>

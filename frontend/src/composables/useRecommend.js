@@ -1,7 +1,7 @@
 // import { reactive, ref, watch, onUnmounted } from 'vue';
 // import debounce from 'lodash/debounce';
 
-import { selectedTracks, recommendations, recommendState } from '@/stores/trackStore.js';
+import { selectedTracks, recommendations, analytics, recommendState } from '@/stores/trackStore.js';
 
 export function useRecommend() {
   const state = recommendState;
@@ -31,7 +31,8 @@ export function useRecommend() {
 
       const data = await response.json();
       console.log(data);
-      recommendations.splice(0, recommendations.length, ...data);
+      recommendations.splice(0, recommendations.length, ...(data.recommendations || []));
+      Object.assign(analytics, data.analytics);
     } catch (error) {
       console.error('Recommendation request failed', error);
     } finally {

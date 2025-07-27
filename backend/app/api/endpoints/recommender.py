@@ -1,12 +1,12 @@
 import os
-from fastapi import APIRouter, Query
-from sqlalchemy import text
+from fastapi import APIRouter
 from app.db.database import engine 
 from pydantic import BaseModel
 from typing import List, Optional, Dict, Any
 import numpy as np
 from app.utils.recommender_utils import get_track_embeddings, get_aggregated_recommendations, get_track_data, preference_filter
-
+from app.utils.recommender_utils import get_matched_preferences, calc_preference_coverage, calc_distribution, calc_average_similarity
+from app.utils.recommender_utils import tempo_distribution, keys_to_str
 
 class RecommendInput(BaseModel):
     track_ids: List[int]
@@ -32,13 +32,27 @@ class RecommendResponse(BaseModel):
     mode: int
     tempo: float
     time_signature: int
-    youtube_url: Optional[str] = None
+    similarity: float
+    matched_preferences: list[str] = []
+
+class AnalyticsResponse(BaseModel):
+    preference_coverage: Dict[str, int]
+    genre_distribution: Dict[str, int]
+    key_distribution: Optional[Dict[str, int]] = None
+    mode_distribution: Optional[Dict[str, int]] = None
+    time_signature_distribution: Optional[Dict[str, int]] = None
+    average_similarity: Optional[float]
+    tempo_distribution: Optional[Dict[str, int]] = None
+
+class RecommendResultsResponse(BaseModel):
+    recommendations: List[RecommendResponse]
+    analytics: AnalyticsResponse
 
 router = APIRouter()
 
 
 
-@router.post("/recommend", response_model=List[RecommendResponse])
+@router.post("/recommend", response_model=RecommendResultsResponse)
 async def retrieve_recommendations(req: RecommendInput):
 
     current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -51,21 +65,42 @@ async def retrieve_recommendations(req: RecommendInput):
     # 1) 
     selected_embeddings, input_indices = get_track_embeddings(req.track_ids, track_embeddings, valid_track_ids)
 
+    
     if selected_embeddings.size == 0 or len(input_indices) == 0:
         print("No embeddings found - returning empty list")
         return []
 
     recommendations = get_aggregated_recommendations(selected_embeddings, input_indices, track_embeddings, valid_track_ids, top_n=100)
+    
+    similarity_map = {track_id: sim for track_id, sim in recommendations}
 
     rows = get_track_data(recommendations, engine)
-    
     track_list = rows["recommendations"]
 
-    filtered = [t for t in track_list if preference_filter(t, req)]
+    for t in track_list:
+        t["similarity"] = similarity_map.get(t["id"], None)
+        t["matched_preferences"] = get_matched_preferences(t, req)
 
+    filtered = [t for t in track_list if preference_filter(t, req)]
+    filtered.sort(key=lambda x: x.get("similarity", 0), reverse=True)
     filtered = filtered[:10]
 
-    # for t in filtered:
-    #     t["youtube_url"] = get_youtube_url(t["title"], t["artist_name"])
+    genre_distribution = calc_distribution(filtered, "genre")
+    key_distribution = calc_distribution(filtered, "key")
+    mode_distribution = calc_distribution(filtered, "mode")
+    time_signature_distribution = calc_distribution(filtered, "time_signature")
 
-    return filtered
+    analytics = {
+    "preference_coverage": calc_preference_coverage(filtered, req),
+    "genre_distribution": genre_distribution,
+    "key_distribution": keys_to_str(key_distribution),
+    "mode_distribution": keys_to_str(mode_distribution),
+    "time_signature_distribution": keys_to_str(time_signature_distribution),
+    "average_similarity": calc_average_similarity(filtered),
+    "tempo_distribution": tempo_distribution(filtered)
+}
+
+    return {
+    "recommendations": filtered,
+    "analytics": analytics
+}

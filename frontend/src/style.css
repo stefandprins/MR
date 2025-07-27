@@ -128,13 +128,20 @@ button:focus-visible {
 
 .playlist-row {
   display: grid;
-  grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr 1fr; /* Adjust for your needs */
+  grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr; /* Adjust for your needs */
   background-color: #e3f2fd;
   border: 1px solid #1976d2;
   /* align-items: center;
   padding: 0.5rem 1rem;
   border-bottom: 1px solid #e5e5e5;
   background: #f8fbfd; */
+}
+
+.analytics-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  background-color: #e3f2fd;
+  border: 1px solid #1976d2;
 }
 
 .form-label {
@@ -154,6 +161,28 @@ button:focus-visible {
   width: 100%;
   padding: 2rem;
   text-align: center;
+}
+
+.genre-grid {
+  display: grid;
+  grid-template-columns: 100px repeat(2, 1fr); /* left aside + 2 columns */
+  background-color: #e3f2fd;
+  border: 1px solid #1976d2;
+  gap: 4px;
+}
+
+.tempo-grid {
+  display: grid;
+  grid-template-columns: 100px 1fr; /* left aside + 2 columns */
+  background-color: #e3f2fd;
+  border: 1px solid #1976d2;
+  gap: 4px;
+}
+
+.analytics-block {
+  border: 1px solid #1976d2;
+  border-radius: 3px;
+  padding: 3px 3px;
 }
 
 @media (prefers-color-scheme: light) {
