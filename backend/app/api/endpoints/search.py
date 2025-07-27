@@ -12,20 +12,21 @@ def search_tracks(query: str = Query(..., min_length=1)):
     # 2) Escape quotes and add :* for each term
     prefixes = []
     for w in words:
-        escaped = w.replace("'", "''")   # double up single quotes
-        prefixes.append(f"{escaped}:*")  # now safe—no backslashes in here
+        escaped = w.replace("'", "''")   # 
+        prefixes.append(f"{escaped}:*")  # 
 
     # 3) Join with AND operator for tsquery
     ts_query = " & ".join(prefixes)
 
     stmt = text("""
-        SELECT track.id, track.title, artist.artist_name AS artist_name
+        SELECT track.id, track.title, artist.artist_name, genre.genre
         FROM track
-        JOIN artist ON track.artist_id = artist.id
+        JOIN artist ON artist.id = track.artist_id
+        JOIN genre ON genre.id = track.genre_id
         WHERE track.search_vector @@ to_tsquery('english', :q)
         LIMIT 15
     """)
 
     with engine.connect() as conn:
         results = conn.execute(stmt, {"q": ts_query}).fetchall()
-        return [{"id": row[0], "title": row[1], "artist_name": row[2]} for row in results]
+        return [{"id": row[0], "title": row[1], "artist_name": row[2], "genre": row[3]} for row in results]

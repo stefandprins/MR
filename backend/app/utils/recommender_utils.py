@@ -30,7 +30,7 @@ def get_track_embeddings(track_ids, track_embeddings, valid_track_ids):
     
     return np.array(selected_embeddings), input_indices
 
-def get_aggregated_recommendations(embeddings, input_indices, track_embeddings, valid_track_ids, top_n=5):
+def get_aggregated_recommendations(embeddings, input_indices, track_embeddings, valid_track_ids, top_n=100):
     """
     Get aggregated recommendations based on cosine similarity of track embeddings.
     
@@ -90,3 +90,48 @@ def get_track_data(recommendations, engine):
         rows = [dict(row._mapping) for row in result]
     # Now rows contain Python-native types: float, str, None, etc.
     return {"recommendations": rows}
+
+def preference_filter(track, pref):
+    """
+    Apply preference filters to a track.
+    
+    Parameters:
+    - track: Dictionary containing track attributes.
+    - pref: Dictionary containing user preferences.
+    
+    Returns:
+    - Boolean indicating if the track matches the preferences.
+    """
+    track_id = track.get("id", "unknown")
+    
+    if pref.genre and (track["genre"] is None or track["genre"] not in pref.genre):
+        return False
+    
+    if pref.min_year and (track["year"] is None or track["year"] < pref.min_year):
+        return False
+    
+    if pref.max_year and (track["year"] is None or track["year"] > pref.max_year):
+        return False
+    
+    if pref.min_tempo and (track["tempo"] is None or track["tempo"] < pref.min_tempo):
+        return False
+    
+    if pref.max_tempo and (track["tempo"] is None or track["tempo"] > pref.max_tempo):
+        return False
+    
+    if pref.min_duration and (track["duration"] is None or track["duration"] < pref.min_duration):
+        return False
+    
+    if pref.max_duration and (track["duration"] is None or track["duration"] > pref.max_duration):
+        return False
+    
+    if pref.key and (track["key"] is None or track["key"] not in pref.key):
+        return False
+    
+    if pref.mode is not None and (track["mode"] is None or track["mode"] != pref.mode):
+        return False
+    
+    if pref.time_signature and (track["time_signature"] is None or track["time_signature"] not in pref.time_signature):
+        return False
+    
+    return True

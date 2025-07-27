@@ -19,6 +19,7 @@ class Settings:
     # Database
     DATABASE_URL: str = os.getenv("DATABASE_URL")
 
-    print("ALLOWED_ORIGINS loaded:", os.getenv("ALLOWED_ORIGINS"))
+    # Youtube
+    YOUTUBE_API_KEY = os.getenv("YOUTUBE_API_KEY")
 
 settings = Settings()

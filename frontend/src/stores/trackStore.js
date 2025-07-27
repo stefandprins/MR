@@ -1,4 +1,8 @@
-import { ref } from 'vue';
+import { reactive } from 'vue';
 
-export const selectedTracks = ref([]);
-export const recommendations = ref([]);
+export const selectedTracks = reactive([]);
+export const recommendations = reactive([]);
+export const recommendState = reactive({
+  loading: false,
+  error: null,
+});

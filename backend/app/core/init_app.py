@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 # from app.api.endpoints import recommender, song  # import other routers here
-from app.api.endpoints import search, recommender
+from app.api.endpoints import search, recommender, youtube_url
 from app.core.config import settings
 
 def create_app() -> FastAPI:
@@ -22,6 +22,7 @@ def create_app() -> FastAPI:
     # Register API routes
     app.include_router(search.router, tags=["Search"])
     app.include_router(recommender.router, tags=["Recommender"])
+    app.include_router(youtube_url.router, tags=["Youtube"])
     # app.include_router(song.router, prefix="/api", tags=["Songs"])  # if you have song API
 
     return app

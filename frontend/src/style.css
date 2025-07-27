@@ -69,6 +69,12 @@ button:focus-visible {
   border-radius: 1rem 1rem 0 0 !important;
 }
 
+.card-header1 {
+  background-color: #f9f9f9 !important;
+  color: black !important;
+  border-radius: 1rem 1rem 0 0 !important;
+}
+
 .min-height-card {
   min-height: 300px;
 }
@@ -118,6 +124,30 @@ button:focus-visible {
 .left-column {
   flex: 1;
   min-width: 0;
+}
+
+.playlist-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr 1fr; /* Adjust for your needs */
+  background-color: #e3f2fd;
+  border: 1px solid #1976d2;
+  /* align-items: center;
+  padding: 0.5rem 1rem;
+  border-bottom: 1px solid #e5e5e5;
+  background: #f8fbfd; */
+}
+
+.form-label {
+  color: #333;
+  font-weight: 400;
+}
+
+.vue-slider-custom {
+  margin: 8px 0;
+}
+
+.form-check-label {
+  margin-left: 0rem;
 }
 
 #app {

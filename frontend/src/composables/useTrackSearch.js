@@ -86,8 +86,8 @@ export function useTrackSearch() {
   };
 
   const addTrack = () => {
-    if (state.selectedTrack && !selectedTracks.value.some((t) => t.id === state.selectedTrack.id)) {
-      selectedTracks.value.push(state.selectedTrack);
+    if (state.selectedTrack && !selectedTracks.some((t) => t.id === state.selectedTrack.id)) {
+      selectedTracks.push(state.selectedTrack);
     }
     state.query = '';
     state.results = [];
@@ -96,9 +96,9 @@ export function useTrackSearch() {
   };
 
   const removeTrack = (trackId) => {
-    const index = selectedTracks.value.findIndex((t) => t.id === trackId);
+    const index = selectedTracks.findIndex((t) => t.id === trackId);
     if (index !== -1) {
-      selectedTracks.value.splice(index, 1);
+      selectedTracks.splice(index, 1);
     }
   };
 
