@@ -7,15 +7,8 @@ export function useRecommend() {
   const state = recommendState;
 
   const submitPreferences = async (filters) => {
-    console.log('=== DEBUGGING SUBMISSION ===');
-    console.log('selectedTracks:', selectedTracks);
-    console.log('filters:', filters);
     const track_ids = selectedTracks.map((track) => track.id);
-    console.log('track_ids:', track_ids);
-
     const payload = { track_ids, ...filters };
-    console.log('Full payload:', JSON.stringify(payload, null, 2));
-
     const safeStringify = JSON.stringify;
 
     const requestOptions = {

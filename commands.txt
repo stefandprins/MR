@@ -51,3 +51,5 @@ uvicorn app.main:app --reload
 
 # Save packages used
     pip freeze requirements.txt
+
+# Running pytest

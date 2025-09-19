@@ -50,26 +50,38 @@ class RecommendResultsResponse(BaseModel):
 
 router = APIRouter()
 
-
-
 @router.post("/recommend", response_model=RecommendResultsResponse)
 async def retrieve_recommendations(req: RecommendInput):
 
+    # Get the correct path to the notebook directory.
     current_dir = os.path.dirname(os.path.abspath(__file__))
     project_root = os.path.abspath(os.path.join(current_dir, "..", ".."))
     notebook_path = os.path.join(project_root, "notebook")
     
+    # Load precomputed embeddings and valid track IDs.
     track_embeddings = np.load(os.path.join(notebook_path, "track_embeddings.npy"))
     valid_track_ids = np.load(os.path.join(notebook_path, "valid_track_ids.npy"))
 
-    # 1) 
+    # Fetch embeddings for input track IDs.
     selected_embeddings, input_indices = get_track_embeddings(req.track_ids, track_embeddings, valid_track_ids)
 
-    
+    # Handle case where no embeddings are found.
     if selected_embeddings.size == 0 or len(input_indices) == 0:
         print("No embeddings found - returning empty list")
-        return []
+        return {
+            "recommendations": [],
+            "analytics": {
+                "preference_coverage": {},
+                "genre_distribution": {},
+                "key_distribution": {},
+                "mode_distribution": {},
+                "time_signature_distribution": {},
+                "average_similarity": 0.0,
+                "tempo_distribution": {}
+            }
+        }
 
+    # Get aggregated recommendations.
     recommendations = get_aggregated_recommendations(selected_embeddings, input_indices, track_embeddings, valid_track_ids, top_n=100)
     
     similarity_map = {track_id: sim for track_id, sim in recommendations}

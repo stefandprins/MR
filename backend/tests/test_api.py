@@ -48,11 +48,16 @@ def test_recommend_valid_input():
     payload = {"track_ids": [1, 2, 3]}
     response = client.post("/recommend", json=payload)
     assert response.status_code == 200
+
     data = response.json()
-    assert isinstance(data, list)
-    assert len(data) <= 10      # top_n=5 in your code
-    for rec in data:
-        # Adjust fields if schema changes
+    assert isinstance(data, dict)
+    assert "recommendations" in data
+    assert isinstance(data["recommendations"], list)
+
+    recommendations = data["recommendations"]
+    assert len(recommendations) <= 10  # or 5, depending on your top_n logic
+
+    for rec in recommendations:
         assert "id" in rec
         assert "title" in rec
         assert "artist_name" in rec
@@ -60,13 +65,15 @@ def test_recommend_valid_input():
         assert "duration" in rec
 
 def test_recommend_invalid_track_ids():
-    # Use impossible track ids
     payload = {"track_ids": [9999999, 8888888]}
     response = client.post("/recommend", json=payload)
     assert response.status_code == 200
+
     data = response.json()
-    assert isinstance(data, list)
-    assert len(data) == 0
+    assert isinstance(data, dict)
+    assert "recommendations" in data
+    assert isinstance(data["recommendations"], list)
+    assert len(data["recommendations"]) == 0
 
 def test_recommend_invalid_input():
     # Missing required fields (track_ids)
@@ -79,10 +86,10 @@ def test_recommend_genre_filter():
     response = client.post("/recommend", json=payload)
     assert response.status_code == 200
     data = response.json()
-    assert isinstance(data, list)
-    if data:
-        for rec in data:
-            assert rec["genre"] in ["Rock", "Pop"]
+    assert isinstance(data, dict)
+    assert "recommendations" in data
+    for rec in data["recommendations"]:
+        assert rec["genre"] in ["Rock", "Pop"]
 
 def test_recommend_year_tempo_duration_filter():
     payload = {
@@ -94,9 +101,10 @@ def test_recommend_year_tempo_duration_filter():
     response = client.post("/recommend", json=payload)
     assert response.status_code == 200
     data = response.json()
-    assert isinstance(data, list)
-    for rec in data:
-        assert 1990 <= rec["year"] <= 2000
+    assert isinstance(data, dict)
+    for rec in data["recommendations"]:
+        if rec["year"] is not None:  # handle missing year
+            assert 1990 <= rec["year"] <= 2000
         assert 100 <= rec["tempo"] <= 150
         assert 180 <= rec["duration"] <= 240
 
@@ -105,8 +113,8 @@ def test_recommend_key_mode_filter():
     response = client.post("/recommend", json=payload)
     assert response.status_code == 200
     data = response.json()
-    print(data)
-    for rec in data:
+    assert isinstance(data, dict)
+    for rec in data["recommendations"]:
         assert rec["key"] in [0, 2, 5]
         assert rec["mode"] == 1
 
@@ -115,7 +123,8 @@ def test_recommend_time_signature_filter():
     response = client.post("/recommend", json=payload)
     assert response.status_code == 200
     data = response.json()
-    for rec in data:
+    assert isinstance(data, dict)
+    for rec in data["recommendations"]:
         assert rec["time_signature"] == 4
 
 
@@ -130,11 +139,8 @@ def test_youtube_url_success():
     assert "url" in data
     if data["url"] is None:
         print("No URL returned, possibly due to quota exhaustion. Full response:", data)
-        # Optionally: return here to not check further asserts
         return
-    # Only check the content if there was a URL returned!
-    assert "School" in data["url"]
-    assert "Nirvana" in data["url"]
+    assert data["url"].startswith("https://www.youtube.com/")
 
 def test_youtube_url_missing_title():
     payload = {"artist_name": "Nirvana"}

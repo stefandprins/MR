@@ -5,9 +5,7 @@ export function useVideoURL() {
   const state = youtubeState;
 
   const getVideoURL = async (title, artist_name) => {
-    // Store the arguments as a payload
     const payload = { title, artist_name };
-
     const safeStringify = JSON.stringify;
 
     const requestOptions = {
